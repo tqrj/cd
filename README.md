@@ -21,7 +21,7 @@ while all the rest is done for you automatically.
 0. get the package:
 
 ```sh
-go get -u github.com/cdfmlr/crud
+go get -u github.com/tqrj/crud
 ```
 
 1. all you need are models, and register them in orm & router:

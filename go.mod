@@ -1,4 +1,4 @@
-module github.com/cdfmlr/crud
+module github.com/tqrj/crud
 
 go 1.18
 
