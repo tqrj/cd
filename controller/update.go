@@ -2,9 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tqrj/crud/log"
-	"github.com/tqrj/crud/orm"
-	"github.com/tqrj/crud/service"
+	"github.com/tqrj/cd/log"
+	"github.com/tqrj/cd/orm"
+	"github.com/tqrj/cd/service"
 )
 
 // UpdateHandler handles

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"github.com/tqrj/crud/pkg/ginlogrus"
-	"github.com/tqrj/crud/pkg/gormlogrus"
+	"github.com/tqrj/cd/pkg/ginlogrus"
+	"github.com/tqrj/cd/pkg/gormlogrus"
 )
 
 // Level is the level of log: LevelDebug, LevelInfo, LevelWarn, LevelError

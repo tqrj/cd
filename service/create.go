@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/cd/orm"
 	"gorm.io/gorm"
 )
 

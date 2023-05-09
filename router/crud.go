@@ -3,8 +3,8 @@ package router
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/tqrj/crud/controller"
-	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/cd/controller"
+	"github.com/tqrj/cd/orm"
 	"reflect"
 )
 

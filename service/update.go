@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/cd/orm"
 )
 
 // Update all fields of an existing model in database.

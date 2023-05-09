@@ -4,7 +4,7 @@
 
 English | [机翻中文](README-zh_CN.md)
 
-[![Go Reference Badge](https://pkg.go.dev/badge/github.com/tqrj/crud.svg)](https://pkg.go.dev/github.com/tqrj/crud) [![Go Report Badge](https://goreportcard.com/badge/github.com/tqrj/crud)](https://goreportcard.com/report/github.com/tqrj/crud)
+[![Go Reference Badge](https://pkg.go.dev/badge/github.com/tqrj/cd.svg)](https://pkg.go.dev/github.com/tqrj/cd) [![Go Report Badge](https://goreportcard.com/badge/github.com/tqrj/cd)](https://goreportcard.com/report/github.com/tqrj/cd)
 
 Crud is a golang package that helps writing CRUD servers.
 With this package, all you need is models,
@@ -21,7 +21,7 @@ while all the rest is done for you automatically.
 0. get the package:
 
 ```sh
-go get -u github.com/tqrj/crud
+go get -u github.com/tqrj/cd
 ```
 
 1. all you need are models, and register them in orm & router:
@@ -30,8 +30,8 @@ go get -u github.com/tqrj/crud
 package main
 
 import (
-	"github.com/tqrj/crud/orm"
-	"github.com/tqrj/crud/router"
+	"github.com/tqrj/cd/orm"
+	"github.com/tqrj/cd/router"
 )
 
 type Todo struct {
@@ -180,7 +180,7 @@ to build your own CRUD API services:
 
 **Documents**:
 
-- [go doc](https://pkg.go.dev/github.com/tqrj/crud)
+- [go doc](https://pkg.go.dev/github.com/tqrj/cd)
 
 **Examples**:
 

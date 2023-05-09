@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"github.com/tqrj/crud/log"
+	"github.com/tqrj/cd/log"
 	"reflect"
 	"strings"
 )

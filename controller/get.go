@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/tqrj/crud/orm"
-	"github.com/tqrj/crud/service"
+	"github.com/tqrj/cd/orm"
+	"github.com/tqrj/cd/service"
 	"reflect"
 )
 

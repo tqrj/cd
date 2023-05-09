@@ -1,7 +1,7 @@
 package orm
 
 import (
-	"github.com/tqrj/crud/log"
+	"github.com/tqrj/cd/log"
 	"gorm.io/gorm"
 
 	"gorm.io/driver/mysql"

@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/tqrj/crud/log"
-	gin_request_id "github.com/tqrj/crud/pkg/gin-request-id"
+	"github.com/tqrj/cd/log"
+	ginrequestid "github.com/tqrj/cd/pkg/gin-request-id"
 )
 
 var logger = log.ZoneLogger("crud/router")
@@ -15,7 +15,7 @@ var logger = log.ZoneLogger("crud/router")
 // and addon middlewares indicated by the options parameters.
 func NewRouter(options ...RouterOption) *gin.Engine {
 	router := gin.New()
-	router.Use(gin.Recovery(), log.Logger4Gin, gin_request_id.RequestID())
+	router.Use(gin.Recovery(), log.Logger4Gin, ginrequestid.RequestID())
 
 	for _, option := range options {
 		router = option(router).(*gin.Engine)
@@ -42,7 +42,7 @@ func AllowAllCors() RouterOption {
 // And the request_id will be writen to the X-Request-Id response header.
 func WithRequestID() RouterOption {
 	return func(router gin.IRouter) gin.IRouter {
-		router.Use(gin_request_id.RequestID())
+		router.Use(ginrequestid.RequestID())
 		return router
 	}
 }
