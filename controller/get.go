@@ -2,19 +2,19 @@ package controller
 
 import (
 	"context"
-	"github.com/cdfmlr/crud/orm"
-	"github.com/cdfmlr/crud/service"
 	"github.com/gin-gonic/gin"
+	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/crud/service"
 	"reflect"
 )
 
 // GetRequestOptions is the query options (?opt=val) for GET requests:
 //
-//     limit=10&offset=4&                 # pagination
-//     order_by=id&desc=true&             # ordering
-//     filter_by=name&filter_value=John&  # filtering
-//     total=true&                        # return total count (all available records under the filter, ignoring pagination)
-//     preload=Product&preload=Product.Manufacturer  # preloading: loads nested models as well
+//	limit=10&offset=4&                 # pagination
+//	order_by=id&desc=true&             # ordering
+//	filter_by=name&filter_value=John&  # filtering
+//	total=true&                        # return total count (all available records under the filter, ignoring pagination)
+//	preload=Product&preload=Product.Manufacturer  # preloading: loads nested models as well
 //
 // It is used in GetListHandler, GetByIDHandler and GetFieldHandler, to bind
 // the query parameters in the GET request url.
@@ -30,16 +30,19 @@ type GetRequestOptions struct {
 }
 
 // GetListHandler handles
-//    GET /T
+//
+//	GET /T
+//
 // It returns a list of models.
 //
 // QueryOptions (See GetRequestOptions for more details):
-//    limit, offset, order_by, desc, filter_by, filter_value, preload, total.
+//
+//	limit, offset, order_by, desc, filter_by, filter_value, preload, total.
 //
 // Response:
-//  - 200 OK: { Ts: [{...}, ...] }
-//  - 400 Bad Request: { error: "request band failed" }
-//  - 422 Unprocessable Entity: { error: "get process failed" }
+//   - 200 OK: { Ts: [{...}, ...] }
+//   - 400 Bad Request: { error: "request band failed" }
+//   - 422 Unprocessable Entity: { error: "get process failed" }
 func GetListHandler[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request GetRequestOptions
@@ -77,14 +80,15 @@ func GetListHandler[T any]() gin.HandlerFunc {
 }
 
 // GetByIDHandler handles
-//    GET /T/:idParam
+//
+//	GET /T/:idParam
 //
 // QueryOptions (See GetRequestOptions for more details): preload
 //
 // Response:
-//  - 200 OK: { T: {...} }
-//  - 400 Bad Request: { error: "request band failed" }
-//  - 422 Unprocessable Entity: { error: "get process failed" }
+//   - 200 OK: { T: {...} }
+//   - 400 Bad Request: { error: "request band failed" }
+//   - 422 Unprocessable Entity: { error: "get process failed" }
 func GetByIDHandler[T orm.Model](idParam string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request GetRequestOptions
@@ -109,18 +113,23 @@ func GetByIDHandler[T orm.Model](idParam string) gin.HandlerFunc {
 }
 
 // GetFieldHandler handles
-//    GET /T/:idParam/field
+//
+//	GET /T/:idParam/field
 //
 // QueryOptions (See GetRequestOptions for more details):
-//    limit, offset, order_by, desc, filter_by, filter_value, preload, total.
+//
+//	limit, offset, order_by, desc, filter_by, filter_value, preload, total.
+//
 // Notice, all GetRequestOptions will be conditions for the field, for example:
-//    GET /user/123/order?preload=Product
+//
+//	GET /user/123/order?preload=Product
+//
 // Preloads User.Order.Product instead of User.Product.
 //
 // Response:
-//  - 200 OK: { Fs: [{...}, ...] }  // field models
-//  - 400 Bad Request: { error: "request band failed" }
-//  - 422 Unprocessable Entity: { error: "get process failed" }
+//   - 200 OK: { Fs: [{...}, ...] }  // field models
+//   - 400 Bad Request: { error: "request band failed" }
+//   - 422 Unprocessable Entity: { error: "get process failed" }
 func GetFieldHandler[T orm.Model](idParam string, field string) gin.HandlerFunc {
 	field = nameToField(field, *new(T))
 

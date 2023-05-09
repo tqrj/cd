@@ -2,10 +2,10 @@ package log
 
 import (
 	"fmt"
-	"github.com/cdfmlr/crud/pkg/ginlogrus"
-	"github.com/cdfmlr/crud/pkg/gormlogrus"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/tqrj/crud/pkg/ginlogrus"
+	"github.com/tqrj/crud/pkg/gormlogrus"
 )
 
 // Level is the level of log: LevelDebug, LevelInfo, LevelWarn, LevelError
@@ -80,7 +80,7 @@ func WithHook(hook logrus.Hook) LoggerOption {
 }
 
 // DefaultLoggerOptions = WithLevel(LevelDebug) + WithReportCaller(false)
-//                        + WithHook(RequestIDHook())
+//   - WithHook(RequestIDHook())
 func DefaultLoggerOptions() []LoggerOption {
 	return []LoggerOption{
 		WithLevel(LevelDebug),

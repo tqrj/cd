@@ -2,32 +2,40 @@ package router
 
 import (
 	"fmt"
-	"github.com/cdfmlr/crud/controller"
-	"github.com/cdfmlr/crud/orm"
 	"github.com/gin-gonic/gin"
+	"github.com/tqrj/crud/controller"
+	"github.com/tqrj/crud/orm"
 	"reflect"
 )
 
 // Crud add a group of CRUD routes for model T to the base router
 // on relativePath. For example, if the base router handles route to
-//    /base
+//
+//	/base
+//
 // then the CRUD routes will be:
-//    GET|POST|PUT|DELETE /base/relativePath
+//
+//	GET|POST|PUT|DELETE /base/relativePath
+//
 // where relativePath is recommended to be the plural form of the model name.
 //
 // Example:
-//    r := gin.Default()
-//    Crud[User](r, "/users")
+//
+//	r := gin.Default()
+//	Crud[User](r, "/users")
+//
 // adds the following routes:
-//       GET /users/
-//       GET /users/:UserId
-//      POST /users/
-//       PUT /users/:UserId
-//    DELETE /users/:UserId
+//
+//	   GET /users/
+//	   GET /users/:UserId
+//	  POST /users/
+//	   PUT /users/:UserId
+//	DELETE /users/:UserId
+//
 // and with options parameters, it's optional to add the following routes:
-//    - GetNested()    =>    GET /users/:UserId/friends
-//    - CreateNested() =>   POST /users/:UserId/friends
-//    - DeleteNested() => DELETE /users/:UserId/friends/:FriendId
+//   - GetNested()    =>    GET /users/:UserId/friends
+//   - CreateNested() =>   POST /users/:UserId/friends
+//   - DeleteNested() => DELETE /users/:UserId/friends/:FriendId
 func Crud[T orm.Model](base gin.IRouter, relativePath string, options ...CrudOption) gin.IRouter {
 	group := base.Group(relativePath)
 
@@ -56,11 +64,12 @@ func Crud[T orm.Model](base gin.IRouter, relativePath string, options ...CrudOpt
 type CrudOption func(group *gin.RouterGroup) *gin.RouterGroup
 
 // crud add CRUD routes for model T to the group:
-//       GET /
-//       GET /:idParam
-//      POST /
-//       PUT /:idParam
-//    DELETE /:idParam
+//
+//	   GET /
+//	   GET /:idParam
+//	  POST /
+//	   PUT /:idParam
+//	DELETE /:idParam
 func crud[T orm.Model]() CrudOption {
 	idParam := getIdParam[T]()
 	return func(group *gin.RouterGroup) *gin.RouterGroup {
@@ -76,7 +85,8 @@ func crud[T orm.Model]() CrudOption {
 }
 
 // GetNested add a GET route to the group for querying a nested model:
-//    GET /:parentIdParam/field
+//
+//	GET /:parentIdParam/field
 func GetNested[P orm.Model, N orm.Model](field string) CrudOption {
 	parentIdParam := getIdParam[P]()
 	return func(group *gin.RouterGroup) *gin.RouterGroup {
@@ -101,7 +111,8 @@ func GetNested[P orm.Model, N orm.Model](field string) CrudOption {
 }
 
 // CreateNested add a POST route to the group for creating a nested model:
-//    POST /:parentIdParam/field
+//
+//	POST /:parentIdParam/field
 func CreateNested[P orm.Model, N orm.Model](field string) CrudOption {
 	parentIdParam := getIdParam[P]()
 	return func(group *gin.RouterGroup) *gin.RouterGroup {
@@ -122,7 +133,8 @@ func CreateNested[P orm.Model, N orm.Model](field string) CrudOption {
 }
 
 // DeleteNested add a DELETE route to the group for deleting a nested model:
-//    DELETE /:parentIdParam/field/:childIdParam
+//
+//	DELETE /:parentIdParam/field/:childIdParam
 func DeleteNested[P orm.Model, T orm.Model](field string) CrudOption {
 	parentIdParam := getIdParam[P]()
 	childIdParam := getIdParam[T]()

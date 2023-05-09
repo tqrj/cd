@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cdfmlr/crud/orm"
+	"github.com/tqrj/crud/orm"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -12,7 +12,9 @@ import (
 // Get fetch a single model T into dest.
 //
 // Shout out to GORM for the feature called Smart Select Fields:
-//   https://gorm.io/docs/advanced_query.html#Smart-Select-Fields ,
+//
+//	https://gorm.io/docs/advanced_query.html#Smart-Select-Fields ,
+//
 // we can Get a specific part of fields of model T into a "view model" struct.
 // So the generic type T is the type of the Model (which mapping to a scheme,
 // i.e. a table in the database), while the parameter dest given the type of the
@@ -22,10 +24,14 @@ import (
 //
 // Use FilterBy and Where options to query on specific fields, and by adding
 // Preload options, you can preload relationships, for example:
-//     Get[User](&user, FilterBy("id", 10), Preload("Sessions")))
+//
+//	Get[User](&user, FilterBy("id", 10), Preload("Sessions")))
+//
 // means:
-//     SELECT * FROM users WHERE id = 10;          // into dest
-//     SELECT * FROM sessions WHERE user_id = 10;  // into user.Sessions
+//
+//	SELECT * FROM users WHERE id = 10;          // into dest
+//	SELECT * FROM sessions WHERE user_id = 10;  // into user.Sessions
+//
 // Because this getting model by id is a common operation, a shortcut GetByID
 // is provided. (but you still have to add Preload options if needed)
 func Get[T any](ctx context.Context, dest any, options ...QueryOption) error {
@@ -83,20 +89,23 @@ func GetByID[T orm.Model](ctx context.Context, id any, dest any, options ...Quer
 //   - WithPage(limit, offset) => pagination
 //   - OrderBy(field, descending) => ordering
 //   - FilterBy(field, value) => WHERE field=value condition
-//      - Where(query, args...) => for more complicated queries
+//   - Where(query, args...) => for more complicated queries
 //   - Preload(field) => preload a relationship
-//      - PreloadAll() => preload all associations
+//   - PreloadAll() => preload all associations
 //
 // Example:
-//     GetMany[User](&users,
-//                   WithPage(10, 0),
-//                   OrderBy("age", true),
-//                   FilterBy("name", "John"))
+//
+//	GetMany[User](&users,
+//	              WithPage(10, 0),
+//	              OrderBy("age", true),
+//	              FilterBy("name", "John"))
+//
 // means:
-//     SELECT * FROM users
-//         WHERE name = "John"
-//         ORDER BY age desc
-//         LIMIT 10 OFFSET 0;  // into users
+//
+//	SELECT * FROM users
+//	    WHERE name = "John"
+//	    ORDER BY age desc
+//	    LIMIT 10 OFFSET 0;  // into users
 func GetMany[T any](ctx context.Context, dest any, options ...QueryOption) error {
 	logger := logger.WithContext(ctx).
 		WithField("model", fmt.Sprintf("%T", *new(T))).
@@ -221,9 +230,12 @@ func OrderBy(field string, descending bool) QueryOption {
 // It can be applied multiple times (for multiple conditions).
 //
 // Example:
-//     GetMany[User](&users, FilterBy("name", "John"), FilterBy("age", 10))
+//
+//	GetMany[User](&users, FilterBy("name", "John"), FilterBy("age", 10))
+//
 // means:
-//     SELECT * FROM users WHERE name = "John" AND age = 10 ;  // into users
+//
+//	SELECT * FROM users WHERE name = "John" AND age = 10 ;  // into users
 func FilterBy(field string, value any) QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Where(map[string]any{field: value})
@@ -232,12 +244,16 @@ func FilterBy(field string, value any) QueryOption {
 
 // Where offers a more flexible way to set WHERE conditions.
 // Equivalent to gorm.DB.Where(...), see:
-//   https://gorm.io/docs/query.html#Conditions
+//
+//	https://gorm.io/docs/query.html#Conditions
 //
 // Example:
-//     GetMany[User](&users, Where("name = ? AND age > ?", "John", 10))
+//
+//	GetMany[User](&users, Where("name = ? AND age > ?", "John", 10))
+//
 // means:
-//     SELECT * FROM users WHERE name = "John" AND age > 10 ;  // into users
+//
+//	SELECT * FROM users WHERE name = "John" AND age > 10 ;  // into users
 func Where(query any, args ...any) QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Where(query, args...)

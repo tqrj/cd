@@ -1,23 +1,25 @@
 package controller
 
 import (
-	"github.com/cdfmlr/crud/orm"
-	"github.com/cdfmlr/crud/service"
 	"github.com/gin-gonic/gin"
+	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/crud/service"
 	"reflect"
 )
 
 // CreateHandler handles
-//    POST /T
+//
+//	POST /T
+//
 // creates a new model T, responds with the created model T if successful.
 //
 // Request body:
-//  - {...}  // fields of the model T
+//   - {...}  // fields of the model T
 //
 // Response:
-//  - 200 OK: { T: {...} }
-//  - 400 Bad Request: { error: "request band failed" }
-//  - 422 Unprocessable Entity: { error: "create process failed" }
+//   - 200 OK: { T: {...} }
+//   - 400 Bad Request: { error: "request band failed" }
+//   - 422 Unprocessable Entity: { error: "create process failed" }
 func CreateHandler[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var model T
@@ -40,20 +42,23 @@ func CreateHandler[T any]() gin.HandlerFunc {
 }
 
 // CreateNestedHandler handles
-//    POST /P/:parentIDRouteParam/T
+//
+//	POST /P/:parentIDRouteParam/T
+//
 // where:
-//  - P is the parent model, T is the child model
-//  - parentIDRouteParam is the route param name of the parent model P
-//  - field is the field name of the child model T in the parent model P
+//   - P is the parent model, T is the child model
+//   - parentIDRouteParam is the route param name of the parent model P
+//   - field is the field name of the child model T in the parent model P
+//
 // responds with the updated parent model P
 //
 // Request body:
-//  - {...}  // fields of the child model T
+//   - {...}  // fields of the child model T
 //
 // Response:
-//  - 200 OK: { P: {...} }
-//  - 400 Bad Request: { error: "request band failed" }
-//  - 422 Unprocessable Entity: { error: "create process failed" }
+//   - 200 OK: { P: {...} }
+//   - 400 Bad Request: { error: "request band failed" }
+//   - 422 Unprocessable Entity: { error: "create process failed" }
 func CreateNestedHandler[P orm.Model, T orm.Model](parentIDRouteParam string, field string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		parentID := c.Param(parentIDRouteParam)

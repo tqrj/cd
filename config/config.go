@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cdfmlr/crud/log"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"github.com/tqrj/crud/log"
 	"reflect"
 	"strings"
 )
@@ -15,9 +15,9 @@ import (
 var logger = log.ZoneLogger("crud/config")
 
 // Init reads configure, write values into given configModel
-//  - FromFile: read config from file
-//  - FromEnv: read config from environment variables
-//  - WatchFileChange: watch config file and reload config when changed
+//   - FromFile: read config from file
+//   - FromEnv: read config from environment variables
+//   - WatchFileChange: watch config file and reload config when changed
 func Init(configModel any, options ...Option) error {
 	for _, option := range options {
 		err := option(configModel)
@@ -46,8 +46,9 @@ func FromFile(path string) Option {
 }
 
 // WatchFileChange works with FromFile:
-//     var config MyConfig
-//     config.Init(&config, FromFile(path), WatchFileChange(hook))
+//
+//	var config MyConfig
+//	config.Init(&config, FromFile(path), WatchFileChange(hook))
 //
 // WatchFileChange watch current viper config file,
 // and reload config when changed.
@@ -69,13 +70,15 @@ func WatchFileChange(hook func(oldConfig any, newConfig any)) Option {
 
 // FromEnv reads config from environment variables, and unmarshal to config
 // prefix is the prefix of environment variables:
-//     type MyConfig struct {
-//         Foo struct {
-//             Bar string
-//         }
-//     }
-//     config := MyConfig{}
-//     config.Init(&config, FromEnv("MYAPP"))
+//
+//	type MyConfig struct {
+//	    Foo struct {
+//	        Bar string
+//	    }
+//	}
+//	config := MyConfig{}
+//	config.Init(&config, FromEnv("MYAPP"))
+//
 // will read `config.Foo.Bar` from env `MYAPP_FOO_BAR`.
 func FromEnv(prefix string) Option {
 	return func(config any) error {

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/cdfmlr/crud/orm"
-	"github.com/cdfmlr/crud/router"
+	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/crud/router"
 )
 
 type Todo struct {

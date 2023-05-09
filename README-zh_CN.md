@@ -17,7 +17,7 @@ Crud 是一个帮助编写增查改删（CRUD）服务的 golang 模块。有了
 0. 安装:
 
 ```sh
-go get -u github.com/cdfmlr/crud
+go get -u github.com/tqrj/crud
 ```
 
 1. 然后你只需要定义模型，并在 orm 和 router 中注册它们:
@@ -26,8 +26,8 @@ go get -u github.com/cdfmlr/crud
 package main
 
 import (
-	"github.com/cdfmlr/crud/orm"
-	"github.com/cdfmlr/crud/router"
+	"github.com/tqrj/crud/orm"
+	"github.com/tqrj/crud/router"
 )
 
 type Todo struct {
@@ -155,11 +155,11 @@ DELETE /projects/:ProjectID/todos/:TodoID  # delete an associated relationship
 
 **文档**:
 
-- [go doc](https://pkg.go.dev/github.com/cdfmlr/crud)
+- [go doc](https://pkg.go.dev/github.com/tqrj/crud)
 
 **实例**:
 
-- [sshman](https://github.com/cdfmlr/sshman) 是一个更真实的例子，说明crud如何帮助你快速、轻松地建立一个真实世界的 CRUD REST API 项目。请务必看一下。
+- [sshman](https://github.com/tqrj/sshman) 是一个更真实的例子，说明crud如何帮助你快速、轻松地建立一个真实世界的 CRUD REST API 项目。请务必看一下。
 
 ## 它是如何工作的
 
