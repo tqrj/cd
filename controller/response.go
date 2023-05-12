@@ -9,19 +9,28 @@ import (
 )
 
 // ErrorResponseBody builds the error response body:
-//    { error: "error message" }
+//
+//	{ error: "error message" }
 func ErrorResponseBody(err error) gin.H {
 	return gin.H{
-		"error": err.Error(),
+		"code":    http.StatusBadRequest,
+		"message": err.Error(),
+		"data":    nil,
 	}
 }
 
 // SuccessResponseBody builds the success response body:
-//    { `model`: { ... } }
+//
+//	{ `model`: { ... } }
+//
 // where the `model` will be replaced by the model's type name.
 // and addition fields can add any k-v to the response body.
 func SuccessResponseBody(model any, addition ...gin.H) gin.H {
-	var res = gin.H{}
+	var res = gin.H{
+		"code":    http.StatusOK,
+		"message": "success",
+		"data":    nil,
+	}
 
 	if model != nil {
 		modelName := getResponseModelName(model)
