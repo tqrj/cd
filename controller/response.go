@@ -15,7 +15,6 @@ func ErrorResponseBody(err error) gin.H {
 	return gin.H{
 		"code":    http.StatusBadRequest,
 		"message": err.Error(),
-		"data":    nil,
 	}
 }
 
@@ -29,7 +28,6 @@ func SuccessResponseBody(model any, addition ...gin.H) gin.H {
 	var res = gin.H{
 		"code":    http.StatusOK,
 		"message": "success",
-		"data":    nil,
 	}
 
 	if model != nil {
