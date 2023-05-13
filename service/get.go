@@ -242,6 +242,14 @@ func FilterBy(field string, value any) QueryOption {
 	}
 }
 
+func FilterAt(ats []string) QueryOption {
+
+	return func(tx *gorm.DB) *gorm.DB {
+		return tx.Where("created_at BETWEEN ? AND ?", ats[0], ats[1])
+	}
+
+}
+
 // Where offers a more flexible way to set WHERE conditions.
 // Equivalent to gorm.DB.Where(...), see:
 //
