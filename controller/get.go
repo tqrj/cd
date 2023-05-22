@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/orm"
-	"github.com/tqrj/cd/router"
 	"github.com/tqrj/cd/service"
 	"reflect"
 )
@@ -44,7 +44,7 @@ type GetRequestOptions struct {
 //   - 200 OK: { Ts: [{...}, ...] }
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "get process failed" }
-func GetListHandler[T any](opt *router.ListOption) gin.HandlerFunc {
+func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request GetRequestOptions
 		if err := c.ShouldBind(&request); err != nil {
@@ -90,7 +90,7 @@ func GetListHandler[T any](opt *router.ListOption) gin.HandlerFunc {
 //   - 200 OK: { T: {...} }
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "get process failed" }
-func GetByIDHandler[T orm.Model](idParam string, opt *router.GetOption) gin.HandlerFunc {
+func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request GetRequestOptions
 		if err := c.ShouldBind(&request); err != nil {
@@ -131,7 +131,7 @@ func GetByIDHandler[T orm.Model](idParam string, opt *router.GetOption) gin.Hand
 //   - 200 OK: { Fs: [{...}, ...] }  // field models
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "get process failed" }
-func GetFieldHandler[T orm.Model](idParam string, field string, opt *router.GetOption) gin.HandlerFunc {
+func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOption) gin.HandlerFunc {
 	field = nameToField(field, *new(T))
 
 	return func(c *gin.Context) {
