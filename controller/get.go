@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/tqrj/cd/orm"
+	"github.com/tqrj/cd/router"
 	"github.com/tqrj/cd/service"
 	"reflect"
 )
@@ -43,7 +44,7 @@ type GetRequestOptions struct {
 //   - 200 OK: { Ts: [{...}, ...] }
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "get process failed" }
-func GetListHandler[T any]() gin.HandlerFunc {
+func GetListHandler[T any](opt *router.ListOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request GetRequestOptions
 		if err := c.ShouldBind(&request); err != nil {
@@ -53,7 +54,7 @@ func GetListHandler[T any]() gin.HandlerFunc {
 			return
 		}
 		request.Filters = c.QueryMap("filters")
-		options := buildQueryOptions(request)
+		options := buildQueryOptions(request, opt.LimitMax, opt.Omit)
 
 		var dest []*T
 		err := service.GetMany[T](c, &dest, options...)
@@ -89,7 +90,7 @@ func GetListHandler[T any]() gin.HandlerFunc {
 //   - 200 OK: { T: {...} }
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "get process failed" }
-func GetByIDHandler[T orm.Model](idParam string) gin.HandlerFunc {
+func GetByIDHandler[T orm.Model](idParam string, opt *router.GetOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request GetRequestOptions
 		if err := c.ShouldBind(&request); err != nil {
@@ -99,7 +100,7 @@ func GetByIDHandler[T orm.Model](idParam string) gin.HandlerFunc {
 			return
 		}
 		request.Filters = c.QueryMap("filters")
-		options := buildQueryOptions(request)
+		options := buildQueryOptions(request, 1, opt.Omit)
 
 		dest, err := getModelByID[T](c, idParam, options...)
 		if err != nil {
@@ -130,7 +131,7 @@ func GetByIDHandler[T orm.Model](idParam string) gin.HandlerFunc {
 //   - 200 OK: { Fs: [{...}, ...] }  // field models
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "get process failed" }
-func GetFieldHandler[T orm.Model](idParam string, field string) gin.HandlerFunc {
+func GetFieldHandler[T orm.Model](idParam string, field string, opt *router.GetOption) gin.HandlerFunc {
 	field = nameToField(field, *new(T))
 
 	return func(c *gin.Context) {
@@ -142,7 +143,7 @@ func GetFieldHandler[T orm.Model](idParam string, field string) gin.HandlerFunc 
 			return
 		}
 		request.Filters = c.QueryMap("filters")
-		options := buildQueryOptions(request)
+		options := buildQueryOptions(request, 1, opt.Omit)
 
 		model, err := getModelByID[T](c, idParam, service.Preload(field, options...))
 		if err != nil {
@@ -172,11 +173,17 @@ func GetFieldHandler[T orm.Model](idParam string, field string) gin.HandlerFunc 
 	}
 }
 
-func buildQueryOptions(request GetRequestOptions) []service.QueryOption {
+func buildQueryOptions(request GetRequestOptions, LimitMax int, omit []string) []service.QueryOption {
 	var options []service.QueryOption
-	if request.Limit > 0 {
+	if request.Limit > 0 && request.Limit <= LimitMax {
 		options = append(options, service.WithPage(request.Limit, request.Offset))
+	} else {
+		options = append(options, service.WithPage(10, request.Offset))
 	}
+	if omit != nil && len(omit) != 0 {
+		options = append(options, service.Omit(omit))
+	}
+
 	if request.OrderBy != "" {
 		options = append(options, service.OrderBy(request.OrderBy, request.Descending))
 	}

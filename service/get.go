@@ -214,6 +214,12 @@ func WithPage(limit int, offset int) QueryOption {
 	}
 }
 
+func Omit(omit []string) QueryOption {
+	return func(tx *gorm.DB) *gorm.DB {
+		return tx.Omit(omit...)
+	}
+}
+
 // OrderBy is a query option that sets ordering for GetMany.
 // It can be applied multiple times (for multiple orders).
 func OrderBy(field string, descending bool) QueryOption {
