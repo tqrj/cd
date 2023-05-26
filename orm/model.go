@@ -1,7 +1,9 @@
 package orm
 
 import (
+	"fmt"
 	"gorm.io/gorm"
+	"time"
 )
 
 // Model is the interface for all models.
@@ -17,14 +19,28 @@ type Model interface {
 //
 // BasicModel is actually the gorm.Model struct which contains the following
 // fields:
-//    ID, CreatedAt, UpdatedAt, DeletedAt
+//
+//	ID, CreatedAt, UpdatedAt, DeletedAt
 //
 // It is a good idea to embed this struct as the base struct for all models:
-//    type User struct {
-//      orm.BasicModel
-//    }
-type BasicModel gorm.Model
+//
+//	type User struct {
+//	  orm.BasicModel
+//	}
+type BasicModel struct {
+	ID        uint `gorm:"primarykey"`
+	CreatedAt *LocalTime
+	UpdatedAt *LocalTime
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
 
 func (m BasicModel) Identity() (fieldName string, value any) {
 	return "ID", m.ID
+}
+
+type LocalTime time.Time
+
+func (t *LocalTime) MarshalJSON() ([]byte, error) {
+	tTime := time.Time(*t)
+	return []byte(fmt.Sprintf("\"%v\"", tTime.Format("2006-01-02 15:04:05"))), nil
 }
