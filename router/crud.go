@@ -56,7 +56,7 @@ func Crud[T orm.Model](base gin.IRouter, relativePath string, opt *enum.CurdOpti
 	return group
 }
 
-func DefaultCurdOption() *enum.CurdOption {
+func DefaultCrudOption() *enum.CurdOption {
 	return &enum.CurdOption{
 		ListOption: enum.ListOption{
 			Enable:   true,

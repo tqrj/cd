@@ -1,30 +1,38 @@
 package enum
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/tqrj/cd/service"
+)
 
 type ListOption struct {
-	Enable   bool
-	Omit     []string
-	LimitMax int
+	Enable       bool
+	Omit         []string
+	LimitMax     int
+	QueryOptions []service.QueryOption
 }
 
 type GetOption struct {
-	Enable bool
-	Omit   []string
+	Enable       bool
+	Omit         []string
+	QueryOptions []service.QueryOption
 }
 
 type UpdateOption struct {
-	Enable bool
-	Omit   []string
+	Enable       bool
+	Omit         []string
+	QueryOptions []service.QueryOption
 }
 
 type CreateOption struct {
-	Enable bool
-	Omit   []string
+	Enable       bool
+	Omit         []string
+	QueryOptions []service.QueryOption
 }
 
 type DelOption struct {
-	Enable bool
+	Enable       bool
+	QueryOptions []service.QueryOption
 }
 
 // CrudGroup is options to construct the router group.

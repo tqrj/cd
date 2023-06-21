@@ -23,10 +23,8 @@ func main() {
 	orm.RegisterModel(Todo{}, Project{})
 
 	r := router.NewRouter()
-	router.Crud[Todo](r, "/todos")
-	router.Crud[Project](r, "/projects",
-		router.CrudNested[Project, Todo]("todos"),
-	)
+	router.Crud[Todo](r, "/todos", router.DefaultCrudOption())
+	router.Crud[Project](r, "/projects", router.DefaultCrudOption(), router.CrudNested[Project, Todo]("todos", router.DefaultCrudOption()))
 
 	r.Run(":8086")
 }
