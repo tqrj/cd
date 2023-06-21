@@ -194,8 +194,8 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 	}
 }
 
-func buildQueryOptions(request GetRequestOptions, LimitMax int, omit []string) []service.QueryOption {
-	var options []service.QueryOption
+func buildQueryOptions(request GetRequestOptions, LimitMax int, omit []string) []enum.QueryOption {
+	var options []enum.QueryOption
 	if request.Limit > 0 && request.Limit <= LimitMax {
 		options = append(options, service.WithPage(request.Limit, request.Offset))
 	} else {
@@ -231,7 +231,7 @@ func buildQueryOptions(request GetRequestOptions, LimitMax int, omit []string) [
 }
 
 // getModelByID gets idParam from url and get model from database
-func getModelByID[T orm.Model](c *gin.Context, idParam string, options ...service.QueryOption) (*T, error) {
+func getModelByID[T orm.Model](c *gin.Context, idParam string, options ...enum.QueryOption) (*T, error) {
 	var model T
 
 	id := c.Param(idParam)
@@ -245,8 +245,8 @@ func getModelByID[T orm.Model](c *gin.Context, idParam string, options ...servic
 	return &model, err
 }
 
-func getCount[T any](ctx context.Context, filters map[string]string, filterAt []string, option service.QueryOption) (total int64, err error) {
-	var options []service.QueryOption
+func getCount[T any](ctx context.Context, filters map[string]string, filterAt []string, option enum.QueryOption) (total int64, err error) {
+	var options []enum.QueryOption
 	for filterBy, filterValue := range filters {
 		if filterBy != "" && filterValue != "" {
 			options = append(options, service.FilterBy(filterBy, filterValue))
@@ -262,8 +262,8 @@ func getCount[T any](ctx context.Context, filters map[string]string, filterAt []
 	return total, err
 }
 
-func getAssociationCount(ctx context.Context, model any, field string, filters map[string]string, filterAt []string, option service.QueryOption) (total int64, err error) {
-	var options []service.QueryOption
+func getAssociationCount(ctx context.Context, model any, field string, filters map[string]string, filterAt []string, option enum.QueryOption) (total int64, err error) {
+	var options []enum.QueryOption
 
 	for filterBy, filterValue := range filters {
 		if filterBy != "" && filterValue != "" {

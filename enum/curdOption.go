@@ -2,41 +2,40 @@ package enum
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tqrj/cd/service"
 )
 
 type ListOption struct {
 	Enable      bool
 	Omit        []string
 	LimitMax    int
-	QueryOption service.QueryOption
+	QueryOption QueryOption
 	Pretreat    GetPretreat
 }
 
 type GetOption struct {
 	Enable      bool
 	Omit        []string
-	QueryOption service.QueryOption
+	QueryOption QueryOption
 	Pretreat    GetPretreat
 }
 
 type UpdateOption struct {
 	Enable      bool
 	Omit        []string
-	QueryOption service.QueryOption
+	QueryOption QueryOption
 	Pretreat    Pretreat
 }
 
 type CreateOption struct {
 	Enable      bool
 	Omit        []string
-	QueryOption service.QueryOption
+	QueryOption QueryOption
 	Pretreat    Pretreat
 }
 
 type DelOption struct {
 	Enable      bool
-	QueryOption service.QueryOption
+	QueryOption QueryOption
 	Pretreat    DeletePretreat
 	LimitID     []int64
 }

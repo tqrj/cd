@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/orm"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -34,7 +35,7 @@ import (
 //
 // Because this getting model by id is a common operation, a shortcut GetByID
 // is provided. (but you still have to add Preload options if needed)
-func Get[T any](ctx context.Context, dest any, options ...QueryOption) error {
+func Get[T any](ctx context.Context, dest any, options ...enum.QueryOption) error {
 	vT := *new(T)
 	logger := logger.WithContext(ctx).
 		WithField("model", fmt.Sprintf("%T", vT)).
@@ -63,7 +64,7 @@ func Get[T any](ctx context.Context, dest any, options ...QueryOption) error {
 // Notice: "id" here is the column (or field) name of the primary key of the
 // model which is indicated by the Identity method of orm.Model.
 // So GetByID only works for models that implement the orm.Model interface.
-func GetByID[T orm.Model](ctx context.Context, id any, dest any, options ...QueryOption) error {
+func GetByID[T orm.Model](ctx context.Context, id any, dest any, options ...enum.QueryOption) error {
 	logger.WithContext(ctx).WithField("model", fmt.Sprintf("%T", *new(T))).
 		WithField("dest", fmt.Sprintf("%T", dest)).
 		Trace("GetByID: Get model by id")
@@ -106,7 +107,7 @@ func GetByID[T orm.Model](ctx context.Context, id any, dest any, options ...Quer
 //	    WHERE name = "John"
 //	    ORDER BY age desc
 //	    LIMIT 10 OFFSET 0;  // into users
-func GetMany[T any](ctx context.Context, dest any, options ...QueryOption) error {
+func GetMany[T any](ctx context.Context, dest any, options ...enum.QueryOption) error {
 	logger := logger.WithContext(ctx).
 		WithField("model", fmt.Sprintf("%T", *new(T))).
 		WithField("dest", fmt.Sprintf("%T", dest))
@@ -125,7 +126,7 @@ func GetMany[T any](ctx context.Context, dest any, options ...QueryOption) error
 }
 
 // Count returns the number of models.
-func Count[T any](ctx context.Context, options ...QueryOption) (count int64, err error) {
+func Count[T any](ctx context.Context, options ...enum.QueryOption) (count int64, err error) {
 	logger := logger.WithContext(ctx).
 		WithField("model", fmt.Sprintf("%T", *new(T)))
 	logger.Trace("Count: Count models")
@@ -143,7 +144,7 @@ func Count[T any](ctx context.Context, options ...QueryOption) (count int64, err
 }
 
 // GetAssociations find matched associations (model.field) into dest.
-func GetAssociations(ctx context.Context, model any, field string, dest any, options ...QueryOption) error {
+func GetAssociations(ctx context.Context, model any, field string, dest any, options ...enum.QueryOption) error {
 	logger := logger.WithContext(ctx).
 		WithField("model", fmt.Sprintf("%T", model)).
 		WithField("field", field).
@@ -160,7 +161,7 @@ func GetAssociations(ctx context.Context, model any, field string, dest any, opt
 }
 
 // CountAssociations count matched associations (model.field).
-func CountAssociations(ctx context.Context, model any, field string, options ...QueryOption) (count int64, err error) {
+func CountAssociations(ctx context.Context, model any, field string, options ...enum.QueryOption) (count int64, err error) {
 	logger.WithContext(ctx).
 		WithField("model", fmt.Sprintf("%T", model)).
 		WithField("field", field).
@@ -171,7 +172,7 @@ func CountAssociations(ctx context.Context, model any, field string, options ...
 }
 
 // associationQuery builds a gorm association query
-func associationQuery(ctx context.Context, model any, field string, options ...QueryOption) *gorm.Association {
+func associationQuery(ctx context.Context, model any, field string, options ...enum.QueryOption) *gorm.Association {
 	query := orm.DB.WithContext(ctx).Model(model)
 	for _, option := range options {
 		query = option(query)
@@ -179,16 +180,13 @@ func associationQuery(ctx context.Context, model any, field string, options ...Q
 	return query.Association(field)
 }
 
-// QueryOption is a function that can be used to construct a query.
-type QueryOption func(tx *gorm.DB) *gorm.DB
-
 // Preload preloads a relationship (eager loading).
 // It can be applied multiple times (for multiple preloads).
 // And nested preloads (like "User.Sessions") are supported.
 //
 // Passing QueryOptions to custom preloading SQL, see
 // https://gorm.io/docs/preload.html#Custom-Preloading-SQL
-func Preload(field string, options ...QueryOption) QueryOption {
+func Preload(field string, options ...enum.QueryOption) enum.QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload(field, func(tx *gorm.DB) *gorm.DB {
 			for _, option := range options {
@@ -201,20 +199,20 @@ func Preload(field string, options ...QueryOption) QueryOption {
 
 // PreloadAll to Preload all associations.
 // clause.Associations won’t preload nested associations!
-func PreloadAll() QueryOption {
+func PreloadAll() enum.QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload(clause.Associations)
 	}
 }
 
 // WithPage is a query option that sets pagination for GetMany.
-func WithPage(limit int, offset int) QueryOption {
+func WithPage(limit int, offset int) enum.QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Limit(limit).Offset(offset)
 	}
 }
 
-func Omit(omit []string) QueryOption {
+func Omit(omit []string) enum.QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Omit(omit...)
 	}
@@ -222,7 +220,7 @@ func Omit(omit []string) QueryOption {
 
 // OrderBy is a query option that sets ordering for GetMany.
 // It can be applied multiple times (for multiple orders).
-func OrderBy(field string, descending bool) QueryOption {
+func OrderBy(field string, descending bool) enum.QueryOption {
 	order := field
 	if descending {
 		order += " desc"
@@ -242,13 +240,13 @@ func OrderBy(field string, descending bool) QueryOption {
 // means:
 //
 //	SELECT * FROM users WHERE name = "John" AND age = 10 ;  // into users
-func FilterBy(field string, value any) QueryOption {
+func FilterBy(field string, value any) enum.QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Where(map[string]any{field: value})
 	}
 }
 
-func FilterAt(ats []string) QueryOption {
+func FilterAt(ats []string) enum.QueryOption {
 
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Where("created_at BETWEEN ? AND ?", ats[0], ats[1])
@@ -268,7 +266,7 @@ func FilterAt(ats []string) QueryOption {
 // means:
 //
 //	SELECT * FROM users WHERE name = "John" AND age > 10 ;  // into users
-func Where(query any, args ...any) QueryOption {
+func Where(query any, args ...any) enum.QueryOption {
 	return func(tx *gorm.DB) *gorm.DB {
 		return tx.Where(query, args...)
 	}
