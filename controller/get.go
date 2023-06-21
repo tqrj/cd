@@ -32,6 +32,8 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 			ResponseError(c, CodeBadRequest, err)
 			return
 		}
+		request.Filters = c.QueryMap("filters")
+
 		if opt.Pretreat != nil {
 			var err error
 			request, err = opt.Pretreat(c, request)
@@ -42,8 +44,6 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 				return
 			}
 		}
-
-		request.Filters = c.QueryMap("filters")
 		options := buildQueryOptions(request, opt.LimitMax, opt.Omit)
 		if opt.QueryOption != nil {
 			options = append(options, opt.QueryOption)
@@ -91,6 +91,7 @@ func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.Handle
 			ResponseError(c, CodeBadRequest, err)
 			return
 		}
+		request.Filters = c.QueryMap("filters")
 		if opt.Pretreat != nil {
 			var err error
 			request, err = opt.Pretreat(c, request)
@@ -101,7 +102,6 @@ func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.Handle
 				return
 			}
 		}
-		request.Filters = c.QueryMap("filters")
 		options := buildQueryOptions(request, 1, opt.Omit)
 		if opt.QueryOption != nil {
 			options = append(options, opt.QueryOption)
