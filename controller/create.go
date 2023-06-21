@@ -31,7 +31,7 @@ func CreateHandler[T any](opt *enum.CreateOption) gin.HandlerFunc {
 			return
 		}
 		if opt.Pretreat != nil {
-			res, err := opt.Pretreat(model)
+			res, err := opt.Pretreat(c, model)
 			model = res.(T)
 			if err != nil {
 				logger.WithContext(c).WithError(err).

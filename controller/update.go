@@ -49,7 +49,7 @@ func UpdateHandler[T orm.Model](idParam string, opt *enum.UpdateOption) gin.Hand
 			return
 		}
 		if opt.Pretreat != nil {
-			res, err := opt.Pretreat(updatedModel)
+			res, err := opt.Pretreat(c, updatedModel)
 			updatedModel = res.(T)
 			if err != nil {
 				logger.WithContext(c).WithError(err).

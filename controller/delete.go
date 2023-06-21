@@ -41,7 +41,7 @@ func DeleteHandler[T orm.Model](idParam string, opt *enum.DelOption) gin.Handler
 			Tracef("DeleteHandler: Delete %T, id=%v", *new(T), id)
 		if opt.Pretreat != nil {
 			var err error
-			id, err = opt.Pretreat(idParam)
+			id, err = opt.Pretreat(c, idParam)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler:Pretreat err")

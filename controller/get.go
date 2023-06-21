@@ -34,7 +34,7 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 		}
 		if opt.Pretreat != nil {
 			var err error
-			request, err = opt.Pretreat(request)
+			request, err = opt.Pretreat(c, request)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler:Pretreat err")
@@ -93,7 +93,7 @@ func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.Handle
 		}
 		if opt.Pretreat != nil {
 			var err error
-			request, err = opt.Pretreat(request)
+			request, err = opt.Pretreat(c, request)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler:Pretreat err")
