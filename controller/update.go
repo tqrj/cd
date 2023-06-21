@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/log"
 	"github.com/tqrj/cd/orm"
 	"github.com/tqrj/cd/service"
@@ -21,7 +22,7 @@ import (
 //   - 400 Bad Request: { error: "missing id or bind fields failed" }
 //   - 404 Not Found: { error: "record with id not found" }
 //   - 422 Unprocessable Entity: { error: "update process failed" }
-func UpdateHandler[T orm.Model](idParam string) gin.HandlerFunc {
+func UpdateHandler[T orm.Model](idParam string, opt *enum.UpdateOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var model T
 
@@ -47,6 +48,16 @@ func UpdateHandler[T orm.Model](idParam string) gin.HandlerFunc {
 			ResponseError(c, CodeBadRequest, err)
 			return
 		}
+		if opt.Pretreat != nil {
+			res, err := opt.Pretreat(updatedModel)
+			updatedModel = res.(T)
+			if err != nil {
+				logger.WithContext(c).WithError(err).
+					Warn("GetListHandler:Pretreat err")
+				ResponseError(c, CodeBadRequest, err)
+				return
+			}
+		}
 
 		log.Logger.Tracef("UpdateHandler: Update %#v, id=%v", updatedModel, id)
 
@@ -61,7 +72,7 @@ func UpdateHandler[T orm.Model](idParam string) gin.HandlerFunc {
 			return
 		}
 
-		_, err := service.Update(c, &updatedModel)
+		_, err := service.Update(c, &updatedModel, opt)
 		if err != nil {
 			logger.WithContext(c).WithError(err).
 				Warn("UpdateHandler: Update failed")

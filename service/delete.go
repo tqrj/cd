@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/orm"
 )
 
@@ -14,7 +15,7 @@ func Delete(ctx context.Context, model any) (rowsAffected int64, err error) {
 }
 
 // DeleteByID deletes a model from database by its ID.
-func DeleteByID[T orm.Model](ctx context.Context, id any) (rowsAffected int64, err error) {
+func DeleteByID[T orm.Model](ctx context.Context, id any, opt *enum.DelOption) (rowsAffected int64, err error) {
 	logger.WithContext(ctx).
 		WithField("id", id).
 		Trace("DeleteByID: Delete model by ID")
@@ -26,7 +27,11 @@ func DeleteByID[T orm.Model](ctx context.Context, id any) (rowsAffected int64, e
 			Warn("DeleteByID: GetByID failed")
 		return 0, err
 	}
-	result := orm.DB.WithContext(ctx).Delete(&model)
+	db := orm.DB.WithContext(ctx)
+	if opt.QueryOption != nil {
+		db = opt.QueryOption(db)
+	}
+	result := db.Delete(&model)
 	if result.Error != nil {
 		logger.WithContext(ctx).
 			WithError(result.Error).Warn("DeleteByID: failed")

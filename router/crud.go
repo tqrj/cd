@@ -90,13 +90,13 @@ func crud[T orm.Model](opt *enum.CurdOption) enum.CrudGroup {
 			group.GET(fmt.Sprintf("/:%s", idParam), controller.GetByIDHandler[T](idParam, &opt.GetOption))
 		}
 		if opt.CreateOption.Enable {
-			group.POST("", controller.CreateHandler[T]())
+			group.POST("", controller.CreateHandler[T](&opt.CreateOption))
 		}
 		if opt.UpdateOption.Enable {
-			group.PUT(fmt.Sprintf("/:%s", idParam), controller.UpdateHandler[T](idParam))
+			group.PUT(fmt.Sprintf("/:%s", idParam), controller.UpdateHandler[T](idParam, &opt.UpdateOption))
 		}
 		if opt.DelOption.Enable {
-			group.DELETE(fmt.Sprintf("/:%s", idParam), controller.DeleteHandler[T](idParam))
+			group.DELETE(fmt.Sprintf("/:%s", idParam), controller.DeleteHandler[T](idParam, &opt.DelOption))
 		}
 
 		return group
@@ -132,7 +132,7 @@ func GetNested[P orm.Model, N orm.Model](field string, opt *enum.GetOption) enum
 // CreateNested add a POST route to the group for creating a nested model:
 //
 //	POST /:parentIdParam/field
-func CreateNested[P orm.Model, N orm.Model](field string) enum.CrudGroup {
+func CreateNested[P orm.Model, N orm.Model](field string, opt *enum.CreateOption) enum.CrudGroup {
 	parentIdParam := getIdParam[P]()
 	return func(group *gin.RouterGroup) *gin.RouterGroup {
 		relativePath := fmt.Sprintf("/:%s/%s", parentIdParam, field)
@@ -145,7 +145,7 @@ func CreateNested[P orm.Model, N orm.Model](field string) enum.CrudGroup {
 		}
 
 		group.POST(relativePath,
-			controller.CreateNestedHandler[P, N](parentIdParam, field),
+			controller.CreateNestedHandler[P, N](parentIdParam, field, opt),
 		)
 		return group
 	}
@@ -184,7 +184,7 @@ func CrudNested[P orm.Model, T orm.Model](field string, opt *enum.CurdOption) en
 		}
 
 		if opt.CreateOption.Enable {
-			group = CreateNested[P, T](field)(group)
+			group = CreateNested[P, T](field, &opt.CreateOption)(group)
 		}
 		if opt.DelOption.Enable {
 			group = DeleteNested[P, T](field)(group)

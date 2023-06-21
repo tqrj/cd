@@ -53,9 +53,20 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 			ResponseError(c, CodeBadRequest, err)
 			return
 		}
+		if opt.Pretreat != nil {
+			var err error
+			request, err = opt.Pretreat(request)
+			if err != nil {
+				logger.WithContext(c).WithError(err).
+					Warn("GetListHandler:Pretreat err")
+				ResponseError(c, CodeBadRequest, err)
+				return
+			}
+		}
+
 		request.Filters = c.QueryMap("filters")
 		options := buildQueryOptions(request, opt.LimitMax, opt.Omit)
-		options = append(options, opt.QueryOptions...)
+		options = append(options, opt.QueryOption)
 		var dest []*T
 		err := service.GetMany[T](c, &dest, options...)
 		if err != nil {
@@ -67,7 +78,7 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 
 		var addition []gin.H
 		if request.Total {
-			total, err := getCount[T](c, request.Filters, request.FiltersAt, opt.QueryOptions)
+			total, err := getCount[T](c, request.Filters, request.FiltersAt, opt.QueryOption)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler: getCount failed")
@@ -99,9 +110,19 @@ func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.Handle
 			ResponseError(c, CodeBadRequest, err)
 			return
 		}
+		if opt.Pretreat != nil {
+			var err error
+			request, err = opt.Pretreat(request)
+			if err != nil {
+				logger.WithContext(c).WithError(err).
+					Warn("GetListHandler:Pretreat err")
+				ResponseError(c, CodeBadRequest, err)
+				return
+			}
+		}
 		request.Filters = c.QueryMap("filters")
 		options := buildQueryOptions(request, 1, opt.Omit)
-		options = append(options, opt.QueryOptions...)
+		options = append(options, opt.QueryOption)
 		dest, err := getModelByID[T](c, idParam, options...)
 		if err != nil {
 			logger.WithContext(c).WithError(err).
@@ -144,7 +165,7 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 		}
 		request.Filters = c.QueryMap("filters")
 		options := buildQueryOptions(request, 1, opt.Omit)
-		options = append(options, opt.QueryOptions...)
+		options = append(options, opt.QueryOption)
 		model, err := getModelByID[T](c, idParam, service.Preload(field, options...))
 		if err != nil {
 			logger.WithContext(c).WithError(err).
@@ -159,7 +180,7 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 
 		var addition []gin.H
 		if request.Total && fieldValue.Kind() == reflect.Slice {
-			total, err := getAssociationCount(c, model, field, request.Filters, request.FiltersAt, opt.QueryOptions)
+			total, err := getAssociationCount(c, model, field, request.Filters, request.FiltersAt, opt.QueryOption)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetFieldHandler: getAssociationCount failed")
@@ -224,8 +245,8 @@ func getModelByID[T orm.Model](c *gin.Context, idParam string, options ...servic
 	return &model, err
 }
 
-func getCount[T any](ctx context.Context, filters map[string]string, filterAt []string, options []service.QueryOption) (total int64, err error) {
-
+func getCount[T any](ctx context.Context, filters map[string]string, filterAt []string, option service.QueryOption) (total int64, err error) {
+	var options []service.QueryOption
 	for filterBy, filterValue := range filters {
 		if filterBy != "" && filterValue != "" {
 			options = append(options, service.FilterBy(filterBy, filterValue))
@@ -233,12 +254,16 @@ func getCount[T any](ctx context.Context, filters map[string]string, filterAt []
 	}
 	if len(filterAt) == 2 {
 		options = append(options, service.FilterAt(filterAt))
+	}
+	if option != nil {
+		options = append(options, option)
 	}
 	total, err = service.Count[T](ctx, options...)
 	return total, err
 }
 
-func getAssociationCount(ctx context.Context, model any, field string, filters map[string]string, filterAt []string, options []service.QueryOption) (total int64, err error) {
+func getAssociationCount(ctx context.Context, model any, field string, filters map[string]string, filterAt []string, option service.QueryOption) (total int64, err error) {
+	var options []service.QueryOption
 
 	for filterBy, filterValue := range filters {
 		if filterBy != "" && filterValue != "" {
@@ -248,6 +273,9 @@ func getAssociationCount(ctx context.Context, model any, field string, filters m
 
 	if len(filterAt) == 2 {
 		options = append(options, service.FilterAt(filterAt))
+	}
+	if option != nil {
+		options = append(options, option)
 	}
 	count, err := service.CountAssociations(ctx, model, field, options...)
 	return count, err

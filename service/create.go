@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/orm"
 	"gorm.io/gorm"
 )
@@ -21,8 +22,8 @@ import (
 //	group := GetByID[Group](123)
 //	Create(&user, NestInto(&group, "users"))
 //	// user is already in the database: just add it into group.users
-func Create(ctx context.Context, model any, in CreateMode) error {
-	return in(ctx, model)
+func Create(ctx context.Context, model any, opt *enum.CreateOption, in CreateMode) error {
+	return in(ctx, model, opt)
 }
 
 // CreateMode is the way to create a model:
@@ -34,7 +35,7 @@ func Create(ctx context.Context, model any, in CreateMode) error {
 //	to handle different kinds of creates (CreateMode). It is a temporary
 //	solution and should be replaced by seperated functions, say,
 //	Create(model) and CreateNested(parentID, field, child).
-type CreateMode func(ctx context.Context, modelToCreate any) error
+type CreateMode func(ctx context.Context, modelToCreate any, opt *enum.CreateOption) error
 
 // NestInto creates a nested model of the parent model in the database.
 // Say, if you have a model User and a model Profile:
@@ -59,8 +60,8 @@ type CreateMode func(ctx context.Context, modelToCreate any) error
 //	INSERT INTO user_profiles (user_id, profile_id)
 //
 // This is useful to handle POSTs like /api/users/{user_id}/profile
-func NestInto(parent any, field string) CreateMode {
-	return func(ctx context.Context, modelToCreate any) error {
+func NestInto(parent any, field string, opt *enum.CreateOption) CreateMode {
+	return func(ctx context.Context, modelToCreate any, opt *enum.CreateOption) error {
 		logger.WithContext(ctx).
 			WithField("parent", parent).
 			WithField("field", field).
@@ -74,11 +75,20 @@ func NestInto(parent any, field string) CreateMode {
 
 // IfNotExist creates a model if it does not exist.
 func IfNotExist() CreateMode {
-	return func(ctx context.Context, modelToCreate any) error {
+	return func(ctx context.Context, modelToCreate any, opt *enum.CreateOption) error {
 		logger.WithContext(ctx).
 			WithField("modelToCreate", modelToCreate).
 			Trace("Create IfNotExist")
+		db := orm.DB.WithContext(ctx)
+		if opt.QueryOption != nil {
+			db = opt.QueryOption(db)
+		}
 
-		return orm.DB.WithContext(ctx).Create(modelToCreate).Error
+		//@todo 暂时先写在这里吧 其实应该在上层 做传递
+		if opt.Omit != nil && len(opt.Omit) != 0 {
+			db = Omit(opt.Omit)(db)
+		}
+
+		return db.Create(modelToCreate).Error
 	}
 }

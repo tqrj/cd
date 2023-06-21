@@ -6,33 +6,39 @@ import (
 )
 
 type ListOption struct {
-	Enable       bool
-	Omit         []string
-	LimitMax     int
-	QueryOptions []service.QueryOption
+	Enable      bool
+	Omit        []string
+	LimitMax    int
+	QueryOption service.QueryOption
+	Pretreat    GetPretreat
 }
 
 type GetOption struct {
-	Enable       bool
-	Omit         []string
-	QueryOptions []service.QueryOption
+	Enable      bool
+	Omit        []string
+	QueryOption service.QueryOption
+	Pretreat    GetPretreat
 }
 
 type UpdateOption struct {
-	Enable       bool
-	Omit         []string
-	QueryOptions []service.QueryOption
+	Enable      bool
+	Omit        []string
+	QueryOption service.QueryOption
+	Pretreat    Pretreat
 }
 
 type CreateOption struct {
-	Enable       bool
-	Omit         []string
-	QueryOptions []service.QueryOption
+	Enable      bool
+	Omit        []string
+	QueryOption service.QueryOption
+	Pretreat    Pretreat
 }
 
 type DelOption struct {
-	Enable       bool
-	QueryOptions []service.QueryOption
+	Enable      bool
+	QueryOption service.QueryOption
+	Pretreat    DeletePretreat
+	LimitID     []int64
 }
 
 // CrudGroup is options to construct the router group.

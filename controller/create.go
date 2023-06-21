@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/orm"
 	"github.com/tqrj/cd/service"
 	"reflect"
@@ -20,7 +21,7 @@ import (
 //   - 200 OK: { T: {...} }
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "create process failed" }
-func CreateHandler[T any]() gin.HandlerFunc {
+func CreateHandler[T any](opt *enum.CreateOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var model T
 		if err := c.ShouldBindJSON(&model); err != nil {
@@ -29,8 +30,18 @@ func CreateHandler[T any]() gin.HandlerFunc {
 			ResponseError(c, CodeBadRequest, err)
 			return
 		}
+		if opt.Pretreat != nil {
+			res, err := opt.Pretreat(model)
+			model = res.(T)
+			if err != nil {
+				logger.WithContext(c).WithError(err).
+					Warn("GetListHandler:Pretreat err")
+				ResponseError(c, CodeBadRequest, err)
+				return
+			}
+		}
 		logger.WithContext(c).Tracef("CreateHandler: Create %#v", model)
-		err := service.Create(c, &model, service.IfNotExist())
+		err := service.Create(c, &model, opt, service.IfNotExist())
 		if err != nil {
 			logger.WithContext(c).WithError(err).
 				Warn("CreateHandler: Create failed")
@@ -59,7 +70,7 @@ func CreateHandler[T any]() gin.HandlerFunc {
 //   - 200 OK: { P: {...} }
 //   - 400 Bad Request: { error: "request band failed" }
 //   - 422 Unprocessable Entity: { error: "create process failed" }
-func CreateNestedHandler[P orm.Model, T orm.Model](parentIDRouteParam string, field string) gin.HandlerFunc {
+func CreateNestedHandler[P orm.Model, T orm.Model](parentIDRouteParam string, field string, opt *enum.CreateOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		parentID := c.Param(parentIDRouteParam)
 		if parentID == "" {
@@ -102,7 +113,7 @@ func CreateNestedHandler[P orm.Model, T orm.Model](parentIDRouteParam string, fi
 		//field := strings.ToUpper(field)[:1] + field[1:]
 		field := nameToField(field, parent)
 
-		err := service.Create(c, &child, service.NestInto(&parent, field))
+		err := service.Create(c, &child, opt, service.NestInto(&parent, field, nil))
 		if err != nil {
 			logger.WithContext(c).WithError(err).
 				Warn("CreateNestedHandler: CreateNest failed")

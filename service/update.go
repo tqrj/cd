@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/orm"
 )
 
 // Update all fields of an existing model in database.
-func Update(ctx context.Context, model any) (rowsAffected int64, err error) {
+func Update(ctx context.Context, model any, opt *enum.UpdateOption) (rowsAffected int64, err error) {
 	logger.WithContext(ctx).
 		WithField("model", model).Trace("Update model")
 
@@ -17,8 +18,12 @@ func Update(ctx context.Context, model any) (rowsAffected int64, err error) {
 			Warn("Update: model is nil, nothing to update")
 		return 0, ErrNoRecord
 	}
-
-	result := orm.DB.WithContext(ctx).Save(model)
+	db := orm.DB.WithContext(ctx)
+	db = Omit(opt.Omit)(db)
+	if opt.QueryOption != nil {
+		db = opt.QueryOption(db)
+	}
+	result := db.Save(model)
 	if result.Error != nil {
 		logger.WithContext(ctx).
 			WithError(result.Error).Warn("Update: failed")
