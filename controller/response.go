@@ -13,8 +13,8 @@ import (
 //	{ error: "error message" }
 func ErrorResponseBody(err error) gin.H {
 	return gin.H{
-		"code":    http.StatusBadRequest,
-		"message": err.Error(),
+		"code": http.StatusBadRequest,
+		"msg":  err.Error(),
 	}
 }
 
@@ -26,8 +26,8 @@ func ErrorResponseBody(err error) gin.H {
 // and addition fields can add any k-v to the response body.
 func SuccessResponseBody(model any, addition ...gin.H) gin.H {
 	var res = gin.H{
-		"code":    http.StatusOK,
-		"message": "success",
+		"code": http.StatusOK,
+		"msg":  "success",
 	}
 
 	if model != nil {

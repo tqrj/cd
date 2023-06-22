@@ -50,13 +50,13 @@ func UpdateHandler[T orm.Model](idParam string, opt *enum.UpdateOption) gin.Hand
 		}
 		if opt.Pretreat != nil {
 			res, err := opt.Pretreat(c, updatedModel)
-			updatedModel = res.(T)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler:Pretreat err")
 				ResponseError(c, CodeBadRequest, err)
 				return
 			}
+			updatedModel = res.(T)
 		}
 
 		log.Logger.Tracef("UpdateHandler: Update %#v, id=%v", updatedModel, id)

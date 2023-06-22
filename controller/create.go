@@ -32,13 +32,13 @@ func CreateHandler[T any](opt *enum.CreateOption) gin.HandlerFunc {
 		}
 		if opt.Pretreat != nil {
 			res, err := opt.Pretreat(c, model)
-			model = res.(T)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler:Pretreat err")
 				ResponseError(c, CodeBadRequest, err)
 				return
 			}
+			model = res.(T)
 		}
 		logger.WithContext(c).Tracef("CreateHandler: Create %#v", model)
 		err := service.Create(c, &model, opt, service.IfNotExist())
