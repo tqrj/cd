@@ -24,6 +24,7 @@ type UpdateOption struct {
 	Omit        []string
 	QueryOption QueryOption
 	Pretreat    Pretreat
+	LimitID     []int64
 }
 
 type CreateOption struct {

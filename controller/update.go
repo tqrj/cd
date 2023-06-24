@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"github.com/tqrj/cd/enum"
 	"github.com/tqrj/cd/log"
 	"github.com/tqrj/cd/orm"
@@ -33,7 +34,13 @@ func UpdateHandler[T orm.Model](idParam string, opt *enum.UpdateOption) gin.Hand
 			ResponseError(c, CodeBadRequest, ErrMissingID)
 			return
 		}
-
+		if Contains(opt.LimitID, cast.ToInt64(id)) {
+			logger.WithContext(c).
+				WithField("idParam", idParam).
+				Warn("DeleteHandler: limit ID failed")
+			ResponseError(c, CodeBadRequest, ErrMissingID)
+			return
+		}
 		if err := service.GetByID[T](c, id, &model); err != nil {
 			logger.WithContext(c).WithError(err).
 				Warn("UpdateHandler: GetByID failed")
