@@ -7,9 +7,11 @@ import (
 type ListOption struct {
 	Enable      bool
 	Omit        []string
+	Fields      string
 	LimitMax    int
 	QueryOption QueryOption
 	Pretreat    GetPretreat
+	Joins       []string
 }
 
 type GetOption struct {
