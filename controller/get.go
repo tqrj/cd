@@ -44,7 +44,7 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 				return
 			}
 		}
-		options := buildQueryOptions(request, opt.LimitMax, opt.Omit, opt.Joins, opt.Fields)
+		options := buildQueryOptions(request, opt.LimitMax, opt.Omit)
 		if opt.QueryOption != nil {
 			options = append(options, opt.QueryOption)
 		}
@@ -102,7 +102,7 @@ func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.Handle
 				return
 			}
 		}
-		options := buildQueryOptions(request, 1, opt.Omit, []string{}, "")
+		options := buildQueryOptions(request, 1, opt.Omit)
 		if opt.QueryOption != nil {
 			options = append(options, opt.QueryOption)
 		}
@@ -147,7 +147,7 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 			return
 		}
 		request.Filters = c.QueryMap("filters")
-		options := buildQueryOptions(request, 1, opt.Omit, []string{}, "")
+		options := buildQueryOptions(request, 1, opt.Omit)
 		if opt.QueryOption != nil {
 			options = append(options, opt.QueryOption)
 		}
@@ -179,7 +179,7 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 	}
 }
 
-func buildQueryOptions(request enum.GetRequestOptions, LimitMax int, omit []string, join []string, fields string) []enum.QueryOption {
+func buildQueryOptions(request enum.GetRequestOptions, LimitMax int, omit []string) []enum.QueryOption {
 	var options []enum.QueryOption
 	if request.Limit > 0 && request.Limit <= LimitMax {
 		options = append(options, service.WithPage(request.Limit, request.Offset))
@@ -189,12 +189,7 @@ func buildQueryOptions(request enum.GetRequestOptions, LimitMax int, omit []stri
 	if omit != nil && len(omit) != 0 {
 		options = append(options, service.Omit(omit))
 	}
-	if join != nil && len(join) != 0 {
-		options = append(options, service.Joins(join))
-	}
-	if fields != "" {
-		options = append(options, service.Select(fields))
-	}
+
 	if request.OrderBy != "" {
 		options = append(options, service.OrderBy(request.OrderBy, request.Descending))
 	}

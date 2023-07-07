@@ -103,6 +103,96 @@ func crud[T orm.Model](opt *enum.CurdOption) enum.CrudGroup {
 	}
 }
 
+// GetNested add a GET route to the group for querying a nested model:
+//
+//	GET /:parentIdParam/field
+func GetNested[P orm.Model, N orm.Model](field string, opt *enum.GetOption) enum.CrudGroup {
+	parentIdParam := getIdParam[P]()
+	return func(group *gin.RouterGroup) *gin.RouterGroup {
+		relativePath := fmt.Sprintf("/:%s/%s", parentIdParam, field)
+
+		if !gin.IsDebugging() { // GIN_MODE == "release"
+			logger.WithField("parent", getTypeName[P]()).
+				WithField("child", getTypeName[N]()).
+				WithField("relativePath", relativePath).
+				Info("Crud: Adding GET route for getting nested model")
+		}
+
+		group.GET(relativePath,
+			controller.GetFieldHandler[P](parentIdParam, field, opt),
+		)
+		// there is no GET /:parentIdParam/:field/:childIdParam,
+		// because it is equivalent to GET /:childModel/:childIdParam.
+		// So there is also no PUT /:parentIdParam/:field/:childIdParam.
+		// It is verbose and unnecessary.
+		return group
+	}
+}
+
+// CreateNested add a POST route to the group for creating a nested model:
+//
+//	POST /:parentIdParam/field
+func CreateNested[P orm.Model, N orm.Model](field string, opt *enum.CreateOption) enum.CrudGroup {
+	parentIdParam := getIdParam[P]()
+	return func(group *gin.RouterGroup) *gin.RouterGroup {
+		relativePath := fmt.Sprintf("/:%s/%s", parentIdParam, field)
+
+		if !gin.IsDebugging() { // GIN_MODE == "release"
+			logger.WithField("parent", getTypeName[P]()).
+				WithField("child", getTypeName[N]()).
+				WithField("relativePath", relativePath).
+				Info("Crud: Adding POST route for creating nested model")
+		}
+
+		group.POST(relativePath,
+			controller.CreateNestedHandler[P, N](parentIdParam, field, opt),
+		)
+		return group
+	}
+}
+
+// DeleteNested add a DELETE route to the group for deleting a nested model:
+//
+//	DELETE /:parentIdParam/field/:childIdParam
+func DeleteNested[P orm.Model, T orm.Model](field string) enum.CrudGroup {
+	parentIdParam := getIdParam[P]()
+	childIdParam := getIdParam[T]()
+	return func(group *gin.RouterGroup) *gin.RouterGroup {
+		relativePath := fmt.Sprintf("/:%s/%s/:%s", parentIdParam, field, childIdParam)
+
+		if !gin.IsDebugging() { // GIN_MODE == "release"
+			logger.WithField("parent", getTypeName[P]()).
+				WithField("child", getTypeName[T]()).
+				WithField("relativePath", relativePath).
+				Info("Crud: Adding DELETE route for deleting nested model")
+		}
+
+		group.DELETE(relativePath,
+			controller.DeleteNestedHandler[P, T](parentIdParam, field, childIdParam),
+		)
+		return group
+	}
+}
+
+// CrudNested = GetNested + CreateNested + DeleteNested
+func CrudNested[P orm.Model, T orm.Model](field string, opt *enum.CurdOption) enum.CrudGroup {
+	return func(group *gin.RouterGroup) *gin.RouterGroup {
+
+		if opt.GetOption.Enable {
+			group = GetNested[P, T](field, &opt.GetOption)(group)
+
+		}
+
+		if opt.CreateOption.Enable {
+			group = CreateNested[P, T](field, &opt.CreateOption)(group)
+		}
+		if opt.DelOption.Enable {
+			group = DeleteNested[P, T](field)(group)
+		}
+		return group
+	}
+}
+
 // getIdParam Model => "ModelID"
 func getIdParam[T orm.Model]() string {
 	model := *new(T)

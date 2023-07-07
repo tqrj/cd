@@ -218,21 +218,6 @@ func Omit(omit []string) enum.QueryOption {
 	}
 }
 
-func Joins(joins []string) enum.QueryOption {
-	return func(tx *gorm.DB) *gorm.DB {
-		for _, join := range joins {
-			tx = tx.Joins(join)
-		}
-		return tx
-	}
-}
-
-func Select(fields string) enum.QueryOption {
-	return func(tx *gorm.DB) *gorm.DB {
-		return tx.Select(fields)
-	}
-}
-
 // OrderBy is a query option that sets ordering for GetMany.
 // It can be applied multiple times (for multiple orders).
 func OrderBy(field string, descending bool) enum.QueryOption {

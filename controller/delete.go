@@ -58,6 +58,57 @@ func DeleteHandler[T orm.Model](idParam string, opt *enum.DelOption) gin.Handler
 	}
 }
 
+// DeleteNestedHandler handles
+//
+//	DELETE /P/:parentIdParam/T/:childIdParam
+//
+// where:
+//   - P is the parent model, T is the child model
+//   - parentIdParam is the route param name of the parent model P
+//   - childIdParam is the route param name of the child model T in the parent model P
+//   - field is the field name of the child model T in the parent model P
+//
+// Request body: none
+//
+// Response:
+//   - 200 OK: { deleted: true }
+//   - 400 Bad Request: { error: "missing id" }
+//   - 422 Unprocessable Entity: { error: "delete process failed" }
+func DeleteNestedHandler[P orm.Model, T orm.Model](parentIdParam string, field string, childIdParam string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		parentId := c.Param(parentIdParam)
+		if parentId == "" {
+			logger.WithContext(c).
+				WithField("parentIdParam", parentIdParam).
+				Warn("DeleteNestedHandler: read id param failed")
+			ResponseError(c, CodeBadRequest, ErrMissingParentID)
+			return
+		}
+		childId := c.Param(childIdParam)
+		if childId == "" {
+			logger.WithContext(c).
+				WithField("childIdParam", childIdParam).
+				Warn("DeleteNestedHandler: read id param failed")
+			ResponseError(c, CodeBadRequest, ErrMissingID)
+			return
+		}
+		//field := strings.ToUpper(field)[:1] + field[1:]
+		field := nameToField(field, new(P))
+
+		logger.WithContext(c).
+			Tracef("DeleteNestedHandler: Delete %v of %v, parentId=%v, field=%v, childId=%v", *new(T), *new(P), parentId, field, childId)
+
+		err := service.DeleteNestedByID[P, T](c, parentId, field, childId)
+		if err != nil {
+			logger.WithContext(c).WithError(err).
+				Warn("DeleteNestedHandler: Delete failed")
+			ResponseError(c, CodeProcessFailed, err)
+			return
+		}
+		ResponseSuccess(c, nil, gin.H{"deleted": true})
+	}
+}
+
 // Contains returns true if an element is present in a collection.
 func Contains[T comparable](collection []T, element T) bool {
 	for _, item := range collection {

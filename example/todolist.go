@@ -24,6 +24,8 @@ func main() {
 
 	r := router.NewRouter()
 	router.Crud[Todo](r, "/todos", router.DefaultCrudOption())
+	router.Crud[Project](r, "/projects", router.DefaultCrudOption(), router.CrudNested[Project, Todo]("todos", router.DefaultCrudOption()))
+
 	r.Run(":8086")
 }
 
