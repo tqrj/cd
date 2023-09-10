@@ -45,8 +45,10 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 			}
 		}
 		options := buildQueryOptions(request, opt.LimitMax, opt.Omit)
-		if opt.QueryOption != nil {
-			options = append(options, opt.QueryOption)
+		var queryOpt enum.QueryOption
+		if opt.QueryOptionClosure != nil {
+			queryOpt = opt.QueryOptionClosure(c, request)
+			options = append(options, queryOpt)
 		}
 		var dest []*T
 		err := service.GetMany[T](c, &dest, options...)
@@ -59,7 +61,7 @@ func GetListHandler[T any](opt *enum.ListOption) gin.HandlerFunc {
 
 		var addition []gin.H
 		if request.Total {
-			total, err := getCount[T](c, request.Filters, request.FiltersAt, opt.QueryOption)
+			total, err := getCount[T](c, request.Filters, request.FiltersAt, queryOpt)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetListHandler: getCount failed")
@@ -103,8 +105,10 @@ func GetByIDHandler[T orm.Model](idParam string, opt *enum.GetOption) gin.Handle
 			}
 		}
 		options := buildQueryOptions(request, 1, opt.Omit)
-		if opt.QueryOption != nil {
-			options = append(options, opt.QueryOption)
+		var queryOpt enum.QueryOption
+		if opt.QueryOptionClosure != nil {
+			queryOpt = opt.QueryOptionClosure(c, request)
+			options = append(options, queryOpt)
 		}
 		dest, err := getModelByID[T](c, idParam, options...)
 		if err != nil {
@@ -148,8 +152,10 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 		}
 		request.Filters = c.QueryMap("filters")
 		options := buildQueryOptions(request, 1, opt.Omit)
-		if opt.QueryOption != nil {
-			options = append(options, opt.QueryOption)
+		var queryOpt enum.QueryOption
+		if opt.QueryOptionClosure != nil {
+			queryOpt = opt.QueryOptionClosure(c, request)
+			options = append(options, queryOpt)
 		}
 		model, err := getModelByID[T](c, idParam, service.Preload(field, options...))
 		if err != nil {
@@ -165,7 +171,7 @@ func GetFieldHandler[T orm.Model](idParam string, field string, opt *enum.GetOpt
 
 		var addition []gin.H
 		if request.Total && fieldValue.Kind() == reflect.Slice {
-			total, err := getAssociationCount(c, model, field, request.Filters, request.FiltersAt, opt.QueryOption)
+			total, err := getAssociationCount(c, model, field, request.Filters, request.FiltersAt, queryOpt)
 			if err != nil {
 				logger.WithContext(c).WithError(err).
 					Warn("GetFieldHandler: getAssociationCount failed")

@@ -28,9 +28,6 @@ func DeleteByID[T orm.Model](ctx context.Context, id any, opt *enum.DelOption) (
 		return 0, err
 	}
 	db := orm.DB.WithContext(ctx)
-	if opt.QueryOption != nil {
-		db = opt.QueryOption(db)
-	}
 	result := db.Delete(&model)
 	if result.Error != nil {
 		logger.WithContext(ctx).

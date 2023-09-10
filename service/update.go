@@ -20,9 +20,6 @@ func Update(ctx context.Context, model any, opt *enum.UpdateOption) (rowsAffecte
 	}
 	db := orm.DB.WithContext(ctx)
 	db = Omit(opt.Omit)(db)
-	if opt.QueryOption != nil {
-		db = opt.QueryOption(db)
-	}
 	result := db.Save(model)
 	if result.Error != nil {
 		logger.WithContext(ctx).

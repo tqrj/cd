@@ -80,9 +80,9 @@ func IfNotExist() CreateMode {
 			WithField("modelToCreate", modelToCreate).
 			Trace("Create IfNotExist")
 		db := orm.DB.WithContext(ctx)
-		if opt.QueryOption != nil {
-			db = opt.QueryOption(db)
-		}
+		//if opt.QueryOptionClosure != nil {
+		//	db = opt.QueryOptionClosure(db)
+		//}
 
 		//@todo 暂时先写在这里吧 其实应该在上层 做传递
 		if opt.Omit != nil && len(opt.Omit) != 0 {
